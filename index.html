@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
+<head>
+    <title>Test EZ Render</title>
+    <style>
+        body { margin: 0; }
+        canvas { width: 100%; height: 100% }
+    </style>
+    <script src="external/gl-matrix.js"></script>
+    <script src="external/litegl.js"></script>
+    <script src="build/ez.render.min.js"></script>
+    <script src="build/entity.min.js"></script>
+    <script src="build/mesh.min.js"></script>
+    <script src="build/camera.min.js"></script>
+    <script src="build/scene.min.js"></script>
+    <script src="build/renderer.min.js"></script>
 </head>
 <body>
+<div id="mycanvas"></div>
+<script>
+    var renderer = new EZ.Renderer();
+    var camera = new EZ.ECamera();
+    var scene = new EZ.EScene();
+    renderer.setSize(screen.width, screen.height);
+    document.getElementById('mycanvas').appendChild(renderer.context.canvas);
+    render();
 
+    function render () {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+
+    }
+</script>
 </body>
 </html>
+

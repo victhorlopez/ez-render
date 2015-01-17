@@ -28,7 +28,6 @@ EZ.Entity = function() {
     // tree
     this.parent = null;
     this.children = [];
-
 };
 
 EZ.Entity.prototype = {
@@ -93,7 +92,7 @@ EZ.Entity.prototype = {
         }
     },
 
-    getAllChildren = function()
+    getAllChildren: function()
     {
         var r = [];
         for(var i = 0, l = this.children.length; i < l; i++)
