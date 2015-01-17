@@ -29,7 +29,7 @@ EZ.Entity = function() {
     this.parent = null;
     this.children = [];
 
-}
+};
 
 EZ.Entity.prototype = {
 
@@ -91,6 +91,18 @@ EZ.Entity.prototype = {
                 e[method].apply(e, params);
             e.propagate(e, params);
         }
+    },
+
+    getAllChildren = function()
+    {
+        var r = [];
+        for(var i = 0, l = this.children.length; i < l; i++)
+        {
+            var en = this.children[i];
+            r.push(en);
+            en.getAllChildren(r);
+        }
+        return r;
     }
 
 }
