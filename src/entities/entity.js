@@ -9,6 +9,7 @@ EZ.Entity = function() {
     //ids
     this.uuid = ez.entity_count++;
     this.name = "";
+    this.type = "entity";
 
     // space attributes
     this.position = vec3.create();
@@ -44,10 +45,15 @@ EZ.Entity.prototype = {
         this.global_needs_update = true;
     },
 
-    updateGlobalMatrix: function() {
+    // fast to skip parent update
+    updateGlobalMatrix: function(fast) {
+
+        if(this.local_needs_update)
+            this.updateLocalMatrix();
 
         if(this.parent){
-            this.parent.updateGlobalMatrix();
+            if(!fast)
+                this.parent.updateGlobalMatrix();
             mat4.mul(this.global_transform, this.local_transform,this.parent.global_transform);
         }
     },
@@ -59,6 +65,32 @@ EZ.Entity.prototype = {
         child.parent = this;
         children.push(child);
 
+        child.propagate("updateGlobalMatrix", [true]);
+    },
+
+//    removeChild: function(child){
+//        if(child.parent)
+//            throw ("the child "+ child.name+ " has already a parent");
+//
+//        child.parent = this;
+//        children.push(child);
+//
+//        this.propagate("updateGlobalMatrix", [true])
+//
+//    },
+
+    // method from rendeer
+    propagate: function(method, params)
+    {
+        for(var i = 0, l = this.children.length; i < l; i++)
+        {
+            var e = this.children[i];
+            if(!e)
+                continue;
+            if(e[method])
+                e[method].apply(e, params);
+            e.propagate(e, params);
+        }
     }
 
 }
