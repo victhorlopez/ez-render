@@ -2,6 +2,12 @@
  * Created by vik on 17/01/2015.
  */
 
+/**
+ * @depend ../entity.js
+ * @depend ../camera.js
+ * @depend ../scene.js
+ */
+
 // no options yet
 EZ.Renderer = function (options) {
 
@@ -26,7 +32,7 @@ EZ.Renderer.prototype = {
     },
 
     loadAssets: function () {
-        var options = {lat: 64, size: 0.5}
+        var options = {lat: 64, size: 0.5};
         options["long"] = 64;
         this.addMesh("sphere", GL.Mesh.sphere(options));
         this.addMesh("cylinder", GL.Mesh.cylinder({height: 2, radius: 0.1}));
@@ -63,25 +69,25 @@ EZ.Renderer.prototype = {
 
         // TODO scene doesnt find parent attributes
         //find which nodes should we render
-//        var entities = scene.getAllChildren();
-//
-//        //recompute matrices
-//        for (var i = 0; i < entities.length; ++i) {
-//            var en = entities[i];
-//            en.updateGlobalMatrix(true);
-//        }
-//
-//        //get matrices in the camera
-//        camera.updateProjectionMatrix();
-//
-//        //rendering
-//        for (var i = 0; i < entities.length; ++i) {
-//            var en = entities[i];
-//
-//            this.setModelMatrix(en.global_transform, camera);
-//            this.setUniforms(camera);
-//            if (en.render)
-//                en.render(this.context, camera);
-//        }
+        var entities = scene.getAllChildren();
+        var en = null;
+        //recompute matrices
+        for (var i = 0; i < entities.length; ++i) {
+            en = entities[i];
+            en.updateGlobalMatrix(true);
+        }
+
+        //get matrices in the camera
+        camera.updateProjectionMatrix();
+
+        //rendering
+        for (i = 0; i < entities.length; ++i) {
+            en = entities[i];
+
+            this.setModelMatrix(en.global_transform, camera);
+            this.setUniforms(camera);
+            if (en.render)
+                en.render(this.context, camera);
+        }
     }
 };

@@ -8,12 +8,7 @@
     </style>
     <script src="external/gl-matrix.js"></script>
     <script src="external/litegl.js"></script>
-    <script src="build/ez.render.min.js"></script>
-    <script src="build/entity.min.js"></script>
-    <script src="build/mesh.min.js"></script>
-    <script src="build/camera.min.js"></script>
-    <script src="build/scene.min.js"></script>
-    <script src="build/renderer.min.js"></script>
+    <script src="dist/ez.render.js"></script>
 </head>
 <body>
 <div id="mycanvas"></div>
@@ -23,13 +18,16 @@
     var scene = new EZ.EScene();
     renderer.setSize(screen.width, screen.height);
     document.getElementById('mycanvas').appendChild(renderer.context.canvas);
-    render();
 
+    var node = new EZ.EMesh();
+    node.mesh = "grid";
+    scene.addChild(node);
     function render () {
         requestAnimationFrame(render);
         renderer.render(scene, camera);
 
     }
+    render();
 </script>
 </body>
 </html>

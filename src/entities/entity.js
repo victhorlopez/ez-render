@@ -2,12 +2,14 @@
  * Created by vik on 17/01/2015.
  */
 
+
+
 EZ.entity_count = 0;
 
 EZ.Entity = function() {
 
     //ids
-    this.uuid = ez.entity_count++;
+    this.uuid = EZ.entity_count++;
     this.name = "";
     this.type = "entity";
 
@@ -104,4 +106,4 @@ EZ.Entity.prototype = {
         return r;
     }
 
-}
+};

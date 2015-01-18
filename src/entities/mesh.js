@@ -2,7 +2,13 @@
  * Created by vik on 17/01/2015.
  */
 
+/**
+ * @depend entity.js
+ */
+
 EZ.EMesh = function (fov, aspect, near, far) {
+
+    EZ.Entity.call( this );
 
     this.color = vec4.fromValues(1, 1, 1, 1);
 
@@ -11,10 +17,11 @@ EZ.EMesh = function (fov, aspect, near, far) {
     this.mesh_obj = null;
     this.textures = {};
     this.uniforms = { u_color: this.color, u_color_texture: 0 };
-    this.flags = {} // rendering flags: flip_normals , depth_test, depth_write, blend, two_sided
+    this.flags = {}; // rendering flags: flip_normals , depth_test, depth_write, blend, two_sided
 
     this.type = "object3d";
-}
+};
+
 EZ.EMesh.prototype = Object.create(EZ.Entity.prototype); // we inherit from Entity
 EZ.EMesh.prototype.constructor = EZ.EMesh;
 
@@ -24,7 +31,7 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
         this.textures[channel] = null;
     else if (typeof(texture) == "string")
         this.textures[ channel ] = texture;
-}
+};
 
 EZ.EMesh.prototype.render = function (gl, camera) {
     //get mesh
@@ -76,4 +83,4 @@ EZ.EMesh.prototype.render = function (gl, camera) {
     if (this.flags.two_sided) gl.disable(gl.CULL_FACE);
     if (this.flags.depth_write === false)
         gl.depthMask(true);
-}
+};

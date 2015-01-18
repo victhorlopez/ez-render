@@ -2,7 +2,15 @@
  * Created by vik on 17/01/2015.
  */
 
+
+/**
+ * @depend ../entity.js
+ */
+
+
 EZ.ECamera = function (fov, aspect, near, far) {
+
+    EZ.Entity.call( this );
 
     // so far perspective cam, if I need ortho inhertic from this class
     this.aspect = aspect || 1.0;
@@ -18,7 +26,8 @@ EZ.ECamera = function (fov, aspect, near, far) {
 
 
     this.type = "camera";
-}
+};
+
 EZ.ECamera.prototype = Object.create(EZ.Entity.prototype); // we inherit from Entity
 EZ.ECamera.prototype.constructor = EZ.ECamera;
 
@@ -26,6 +35,6 @@ EZ.ECamera.prototype.constructor = EZ.ECamera;
 EZ.ECamera.prototype.updateProjectionMatrix = function () {
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
     mat4.mul(this.view_projection ,this.global_transform, this.projection_matrix); // the view matrix is the transform
-}
+};
 
 
