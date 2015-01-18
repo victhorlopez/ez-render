@@ -1,1 +1,1 @@
-# vik-render
+# ez-render
