@@ -54,7 +54,7 @@ EZ.EMesh.prototype.render = function (renderer) {
     //get shader
     var shader = null;
     if (this.shader)
-        shader = gl.shaders[ shader_name ];
+        shader = gl.shaders[ this.shader ];
 
     // use default shader
     if (!shader)

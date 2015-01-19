@@ -21,15 +21,18 @@
 
 
     var camera = new EZ.ECamera(45, gl.canvas.width / gl.canvas.height, 1, 1000);
-    camera.position = [0, 0, -10];
+    camera.position = [0, -5, -20];
+    camera.lookAt([0,0,0]);
     var scene = new EZ.EScene();
     var node = new EZ.EMesh();
     node.mesh = "sphere";
+    node.shader = "phong";
     scene.addChild(node);
-//    node = new EZ.EMesh();
-//    node.mesh = "grid";
-//    node.scale = [100,100,100];
-//    scene.addChild(node);
+    node = new EZ.EMesh();
+    node.mesh = "grid";
+    node.flags.primitive = gl.LINES;
+    node.scale = [50,50,50];
+    scene.addChild(node);
 
     scene.addChild(camera);
     function render () {
