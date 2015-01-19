@@ -3,11 +3,17 @@
  */
 
 
-EZ.require('EZ.ECamera');
+
 EZ.require('EZ.EScene');
+EZ.require('EZ.CameraController');
 EZ.declare('EZ.Renderer');
 // no options yet
 EZ.Renderer = function (options) {
+
+    // current rendering objects
+    this.current_cam = null;
+    this.current_scene = null;
+    this.cam_controller = null;
 
     // vars needed for the rendering
     this.color = [0,0,0,0];
@@ -18,6 +24,11 @@ EZ.Renderer = function (options) {
         u_model: {},
         u_mvp: this.mvp_matrix
     };
+
+    // time vars
+    this.now = getTime();
+    this.then = this.now;
+    this.dt = 0;
 };
 
 EZ.Renderer.prototype = {
@@ -43,6 +54,8 @@ EZ.Renderer.prototype = {
         this.context = GL.create({width: width, height: height});
         this.context.canvas.width = width;
         this.context.canvas.height = height;
+        this.cam_controller = new EZ.CameraController(this);
+
         this.loadAssets();
     },
 
@@ -62,12 +75,25 @@ EZ.Renderer.prototype = {
         this.context.clearColor( this.color[0],this.color[1],this.color[2],this.color[3] );
         this.context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     },
+    update: function() {
+        this.now = getTime();
+        var dt = (this.now - this.then )* 0.001;;
+        if( this.current_scene )
+            this.current_scene.update(dt);
+        this.cam_controller.update(dt);
+
+    },
     // method from rendeer
     render: function (scene, camera) {
         if (!scene)
             throw("Renderer.render: scene not provided");
         if (!camera)
             throw("Renderer.render: camera not provided");
+        this.current_cam = camera;
+        this.current_scene = scene;
+        // we update the different objects before rendering
+        this.update();
+
 
         this.clearContext();
 

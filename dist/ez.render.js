@@ -240,13 +240,19 @@ EZ.EMesh.prototype.render = function (renderer) {
 
 
 EZ.EScene = function() {
-// TODO put some attributes, time... we'll see
     EZ.Entity.call( this );
+
+    this.time = 0.0;
+
     this.type = "scene";
 };
 
 EZ.EScene.prototype = Object.create( EZ.Entity.prototype ); // we inherit from Entity
 EZ.EScene.prototype.constructor = EZ.EScene;
+
+EZ.EScene.prototype.update = function(dt) {
+    this.time += dt;
+};
 /**
  * Created by vik on 17/01/2015.
  */
@@ -263,8 +269,6 @@ EZ.ECamera = function (fov, aspect, near, far) {
     this.fov = fov || 45;
     this.near = near || 0.1;
     this.far = far || 1000;
-
-    this.type = "camera";
 
     // matrices
     this.projection_matrix = mat4.create();
@@ -287,6 +291,62 @@ EZ.ECamera.prototype.updateProjectionMatrix = function () {
 
 
 /**
+ * Created by vik on 19/01/2015.
+ */
+
+
+
+
+EZ.CameraController = function ( renderer ) {
+    if(renderer  && !renderer.context)
+        throw("CameraController can't work without the canvas");
+
+    this.renderer = renderer;
+    this.ctx = renderer.context; // ctx = context
+    this.cam = null;
+    this.needs_update = true;
+
+    this.target = vec3.create(); // we set it to point to 0,0,0
+    this.radius = vec3.create();
+
+    this.ctx.captureMouse(true);
+    this.ctx.onmousewheel = this.onMouseWheel;
+    this.ctx.onmousedown = this.onMouseDown;
+    this.ctx.onmousemove = this.onMouseMove;
+
+    this.ctx.captureKeys();
+    this.ctx.onkeydown = function(e) {  };
+
+};
+
+
+
+EZ.CameraController.prototye = {
+
+    constructor: EZ.CameraController,
+
+    onMouseMove: function (e) {
+
+    },
+    onMouseDown: function (e) {
+
+    },
+    onMouseWheel: function (e) {
+        console.log("hello");
+    },
+    update: function (dt) {
+
+    }
+};
+
+EZ.CameraController.prototype.update =  function (dt) {
+    this.cam = this.renderer.current_cam;
+    if(this.cam && this.needs_update){
+        this.cam.lookAt(this.target);
+        this.needs_update = false;
+    }
+};
+/**
  * Created by vik on 17/01/2015.
  */
 
@@ -294,8 +354,14 @@ EZ.ECamera.prototype.updateProjectionMatrix = function () {
 
 
 
+
 // no options yet
 EZ.Renderer = function (options) {
+
+    // current rendering objects
+    this.current_cam = null;
+    this.current_scene = null;
+    this.cam_controller = null;
 
     // vars needed for the rendering
     this.color = [0,0,0,0];
@@ -306,6 +372,11 @@ EZ.Renderer = function (options) {
         u_model: {},
         u_mvp: this.mvp_matrix
     };
+
+    // time vars
+    this.now = getTime();
+    this.then = this.now;
+    this.dt = 0;
 };
 
 EZ.Renderer.prototype = {
@@ -331,6 +402,8 @@ EZ.Renderer.prototype = {
         this.context = GL.create({width: width, height: height});
         this.context.canvas.width = width;
         this.context.canvas.height = height;
+        this.cam_controller = new EZ.CameraController(this);
+
         this.loadAssets();
     },
 
@@ -350,12 +423,25 @@ EZ.Renderer.prototype = {
         this.context.clearColor( this.color[0],this.color[1],this.color[2],this.color[3] );
         this.context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     },
+    update: function() {
+        this.now = getTime();
+        var dt = (this.now - this.then )* 0.001;;
+        if( this.current_scene )
+            this.current_scene.update(dt);
+        this.cam_controller.update(dt);
+
+    },
     // method from rendeer
     render: function (scene, camera) {
         if (!scene)
             throw("Renderer.render: scene not provided");
         if (!camera)
             throw("Renderer.render: camera not provided");
+        this.current_cam = camera;
+        this.current_scene = scene;
+        // we update the different objects before rendering
+        this.update();
+
 
         this.clearContext();
 

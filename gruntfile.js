@@ -37,7 +37,7 @@ module.exports = function (grunt) {
             files: ['test/**/*.html']
         },
         jshint: {
-            files: ['<%= Object.keys(concat_in_order.your_target.files)[0] %>'],
+            files: ['src/**/*.js'],
             options: {
                 // options here to override JSHint defaults
                 globals: {
@@ -62,6 +62,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', ['jshint', 'qunit']);
 
-    grunt.registerTask('default', ['qunit', 'concat_in_order', 'strip_code', 'jshint', 'uglify']);
+    grunt.registerTask('default', ['qunit', 'jshint', 'concat_in_order', 'strip_code', 'uglify']);
 
 };
