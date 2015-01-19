@@ -1,7 +1,6 @@
 /**
  * Created by vik on 17/01/2015.
  */
-
 EZ.require('EZ.Entity');
 EZ.declare('EZ.ECamera');
 
@@ -32,5 +31,3 @@ EZ.ECamera.prototype.updateProjectionMatrix = function () {
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
     mat4.mul(this.view_projection , this.projection_matrix, this.view);
 };
-
-

@@ -111,7 +111,7 @@ EZ.Entity.prototype = {
             throw ("the child "+ child.name+ " has a different parent");
 
         child.parent = null;
-        this.children.push(child);
+        this.children[this.children.length] = child;
         for(var i = this.children.length - 1; i >= 0; i--) {
             if(this.children[i] === child) {
                 this.children.splice(i, 1);
@@ -139,7 +139,7 @@ EZ.Entity.prototype = {
         var r = [];
         for(var i = this.children.length - 1; i >= 0; i--) {
             var en = this.children[i];
-            r.push(en);
+            r[r.length] = en;
             en.getAllChildren(r);
         }
         return r;
@@ -259,7 +259,6 @@ EZ.EScene.prototype.update = function(dt) {
 
 
 
-
 EZ.ECamera = function (fov, aspect, near, far) {
 
     EZ.Entity.call( this );
@@ -287,9 +286,6 @@ EZ.ECamera.prototype.updateProjectionMatrix = function () {
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
     mat4.mul(this.view_projection , this.projection_matrix, this.view);
 };
-
-
-
 /**
  * Created by vik on 19/01/2015.
  */
@@ -309,6 +305,42 @@ EZ.CameraController = function ( renderer ) {
     this.target = vec3.create(); // we set it to point to 0,0,0
     this.radius = vec3.create();
 
+
+    // controller vars
+    this.scale = 1.0;
+    this.zoom_speed = 1.0;
+
+    // the scope changed if we enter through an event, thus we need the var that
+    var that = this;
+    this.onMouseMove = function (e) {
+
+    };
+
+    this.onMouseDown = function (e) {
+
+    };
+    this.onMouseWheel= function (e) {
+        var scale = Math.pow( 0.95, that.zoom_speed ); // each mousewheel is a 5% increment at speed 1
+        if(e.deltaY < 1)
+            that.scale *=0.95;
+        else
+            that.scale /=0.95;
+        that.needs_update = true;
+    };
+    this.update = function (dt) {
+        this.cam = this.renderer.current_cam;
+        if(this.cam && this.needs_update){
+            vec3.sub(EZ.temp_vec4,this.cam.position, this.target);
+            vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale);
+            vec3.add(this.cam.position,this.target, EZ.temp_vec4 );
+
+            this.scale = 1.0;
+            this.cam.lookAt(this.target);
+            this.needs_update = false;
+        }
+    };
+
+
     this.ctx.captureMouse(true);
     this.ctx.onmousewheel = this.onMouseWheel;
     this.ctx.onmousedown = this.onMouseDown;
@@ -316,36 +348,9 @@ EZ.CameraController = function ( renderer ) {
 
     this.ctx.captureKeys();
     this.ctx.onkeydown = function(e) {  };
-
 };
 
 
-
-EZ.CameraController.prototye = {
-
-    constructor: EZ.CameraController,
-
-    onMouseMove: function (e) {
-
-    },
-    onMouseDown: function (e) {
-
-    },
-    onMouseWheel: function (e) {
-        console.log("hello");
-    },
-    update: function (dt) {
-
-    }
-};
-
-EZ.CameraController.prototype.update =  function (dt) {
-    this.cam = this.renderer.current_cam;
-    if(this.cam && this.needs_update){
-        this.cam.lookAt(this.target);
-        this.needs_update = false;
-    }
-};
 /**
  * Created by vik on 17/01/2015.
  */
@@ -354,8 +359,6 @@ EZ.CameraController.prototype.update =  function (dt) {
 
 
 
-
-// no options yet
 EZ.Renderer = function (options) {
 
     // current rendering objects
@@ -519,4 +522,3 @@ EZ.Renderer.prototype = {
     }
 
 };
-

@@ -1,13 +1,11 @@
 /**
  * Created by vik on 17/01/2015.
  */
-
-
-
 EZ.require('EZ.EScene');
 EZ.require('EZ.CameraController');
 EZ.declare('EZ.Renderer');
-// no options yet
+
+
 EZ.Renderer = function (options) {
 
     // current rendering objects
@@ -171,4 +169,3 @@ EZ.Renderer.prototype = {
     }
 
 };
-

@@ -83,7 +83,7 @@ EZ.Entity.prototype = {
             throw ("the child "+ child.name+ " has a different parent");
 
         child.parent = null;
-        this.children.push(child);
+        this.children[this.children.length] = child;
         for(var i = this.children.length - 1; i >= 0; i--) {
             if(this.children[i] === child) {
                 this.children.splice(i, 1);
@@ -111,7 +111,7 @@ EZ.Entity.prototype = {
         var r = [];
         for(var i = this.children.length - 1; i >= 0; i--) {
             var en = this.children[i];
-            r.push(en);
+            r[r.length] = en;
             en.getAllChildren(r);
         }
         return r;
