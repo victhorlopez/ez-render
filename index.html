@@ -14,14 +14,24 @@
 <div id="mycanvas"></div>
 <script>
     var renderer = new EZ.Renderer();
-    var camera = new EZ.ECamera();
-    var scene = new EZ.EScene();
-    renderer.setSize(screen.width, screen.height);
-    document.getElementById('mycanvas').appendChild(renderer.context.canvas);
+    console.log(screen);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.append('mycanvas');
 
+
+    var camera = new EZ.ECamera(45, gl.canvas.width / gl.canvas.height, 1, 1000);
+    camera.position = [0, 0, 10];
+    //camera.lookAt([0,0,0]);
+    var scene = new EZ.EScene();
     var node = new EZ.EMesh();
-    node.mesh = "grid";
+    node.mesh = "sphere";
     scene.addChild(node);
+    node = new EZ.EMesh();
+    node.mesh = "grid";
+    node.scale = [100,100,100];
+    scene.addChild(node);
+
+    scene.addChild(camera);
     function render () {
         requestAnimationFrame(render);
         renderer.render(scene, camera);

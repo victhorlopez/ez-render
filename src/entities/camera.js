@@ -31,7 +31,7 @@ EZ.ECamera.prototype.constructor = EZ.ECamera;
 
 EZ.ECamera.prototype.updateProjectionMatrix = function () {
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
-    mat4.mul(this.view_projection ,this.global_transform, this.projection_matrix); // the view matrix is the transform
+    mat4.mul(this.view_projection , this.projection_matrix, this.global_transform); // the view matrix is the transform
 };
 
 

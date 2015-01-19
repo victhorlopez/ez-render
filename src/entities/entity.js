@@ -17,8 +17,9 @@ EZ.Entity = function() {
     this.position = vec3.create();
     this.rotation = vec3.create();
     this.quat = quat.create();
-    this.scale = vec3.create();
-    //vec3.copy(this.up,EZ.UP);
+    this.scale = vec3.fromValues(1,1,1);
+    this.up = vec3.clone(EZ.UP);
+
 
     // transforms
     this.local_transform = mat4.create();
@@ -43,6 +44,7 @@ EZ.Entity.prototype = {
         mat4.mul(this.local_transform, this.local_transform, EZ.temp_mat4);
         mat4.scale(this.local_transform,this.local_transform, this.scale);
 
+        this.local_needs_update = false;
         this.global_needs_update = true;
     },
 
@@ -57,8 +59,14 @@ EZ.Entity.prototype = {
                 this.parent.updateGlobalMatrix();
             mat4.mul(this.global_transform, this.local_transform,this.parent.global_transform);
         }
+        this.global_needs_update = false;
     },
-
+    lookAt: function (target){
+        mat4.lookAt(this.global_transform, this.position, target, this.up);
+        //mat3.fromMat4(EZ.temp_mat3, this.global_transform);
+        //quat.fromMat3(this.rotation, EZ.temp_mat3);
+        quat.fromMat4(this.rotation, this.global_transform); //  quat.fromMat4 says not tested
+    },
     addChild: function(child){
         if(child.parent)
             throw ("the child "+ child.name+ " has already a parent");

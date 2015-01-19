@@ -31,8 +31,8 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
     else if (typeof(texture) == "string")
         this.textures[ channel ] = texture;
 };
-
-EZ.EMesh.prototype.render = function (gl, camera) {
+// from rendeer
+EZ.EMesh.prototype.render = function (gl) {
     //get mesh
     if(this.mesh)
         this.mesh_obj = gl.meshes[this.mesh];
@@ -74,7 +74,7 @@ EZ.EMesh.prototype.render = function (gl, camera) {
     }
 
     shader.uniforms(this.uniforms);
-    shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.primitive);
+    shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.flags.primitive);
 
     if (this.flags.flip_normals) gl.frontFace(gl.CCW);
     if (this.flags.depth_test === false) gl.enable(gl.DEPTH_TEST);

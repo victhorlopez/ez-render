@@ -1,7 +1,6 @@
 /**
  * Created by vik on 17/01/2015.
  *
- *
  *    dependencies: gl-matrix.js, litegl.js
  */
 
@@ -25,6 +24,7 @@ EZ.temp_vec2 = vec3.create();
 EZ.temp_vec3 = vec3.create();
 EZ.temp_vec4 = vec3.create();
 EZ.temp_quat = quat.create();
+EZ.temp_mat3 = mat3.create();
 
 /**
  * Created by vik on 17/01/2015.
@@ -45,8 +45,9 @@ EZ.Entity = function() {
     this.position = vec3.create();
     this.rotation = vec3.create();
     this.quat = quat.create();
-    this.scale = vec3.create();
-    //vec3.copy(this.up,EZ.UP);
+    this.scale = vec3.fromValues(1,1,1);
+    this.up = vec3.clone(EZ.UP);
+
 
     // transforms
     this.local_transform = mat4.create();
@@ -71,6 +72,7 @@ EZ.Entity.prototype = {
         mat4.mul(this.local_transform, this.local_transform, EZ.temp_mat4);
         mat4.scale(this.local_transform,this.local_transform, this.scale);
 
+        this.local_needs_update = false;
         this.global_needs_update = true;
     },
 
@@ -85,8 +87,14 @@ EZ.Entity.prototype = {
                 this.parent.updateGlobalMatrix();
             mat4.mul(this.global_transform, this.local_transform,this.parent.global_transform);
         }
+        this.global_needs_update = false;
     },
-
+    lookAt: function (target){
+        mat4.lookAt(this.global_transform, this.position, target, this.up);
+        //mat3.fromMat4(EZ.temp_mat3, this.global_transform);
+        //quat.fromMat3(this.rotation, EZ.temp_mat3);
+        quat.fromMat4(this.rotation, this.global_transform); //  quat.fromMat4 says not tested
+    },
     addChild: function(child){
         if(child.parent)
             throw ("the child "+ child.name+ " has already a parent");
@@ -168,8 +176,8 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
     else if (typeof(texture) == "string")
         this.textures[ channel ] = texture;
 };
-
-EZ.EMesh.prototype.render = function (gl, camera) {
+// from rendeer
+EZ.EMesh.prototype.render = function (gl) {
     //get mesh
     if(this.mesh)
         this.mesh_obj = gl.meshes[this.mesh];
@@ -211,7 +219,7 @@ EZ.EMesh.prototype.render = function (gl, camera) {
     }
 
     shader.uniforms(this.uniforms);
-    shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.primitive);
+    shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.flags.primitive);
 
     if (this.flags.flip_normals) gl.frontFace(gl.CCW);
     if (this.flags.depth_test === false) gl.enable(gl.DEPTH_TEST);
@@ -268,7 +276,7 @@ EZ.ECamera.prototype.constructor = EZ.ECamera;
 
 EZ.ECamera.prototype.updateProjectionMatrix = function () {
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
-    mat4.mul(this.view_projection ,this.global_transform, this.projection_matrix); // the view matrix is the transform
+    mat4.mul(this.view_projection , this.projection_matrix, this.global_transform); // the view matrix is the transform
 };
 
 
@@ -294,7 +302,7 @@ EZ.Renderer = function (options) {
         u_model: {},
         u_mvp: this.mvp_matrix
     };
-
+    this.loadAssets();
 };
 
 EZ.Renderer.prototype = {
@@ -312,6 +320,7 @@ EZ.Renderer.prototype = {
         this.addMesh("circle", GL.Mesh.circle({xz: true}));
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
+        this.createShaders();
     },
 
     setSize: function (width, height) {
@@ -319,8 +328,8 @@ EZ.Renderer.prototype = {
         this.context.canvas.height = height;
     },
 
-    setModelMatrix: function (matrix, cam) {
-        mat4.multiply(this.mvp_matrix, cam.view_projection, matrix);
+    setModelMatrix: function (model, cam) {
+        mat4.multiply(this.mvp_matrix, cam.view_projection, model);
     },
 
     setUniforms: function (cam, entity) {
@@ -360,7 +369,30 @@ EZ.Renderer.prototype = {
             this.setModelMatrix(en.global_transform, camera);
             this.setUniforms(camera, en);
             if (en.render)
-                en.render(this.context, camera);
+                en.render(this.context);
         }
+    },
+    createShaders: function (){
+        this._flat_shader = new GL.Shader('\
+				precision highp float;\
+				attribute vec3 a_vertex;\
+				uniform mat4 u_mvp;\
+				void main() {\
+					gl_Position = u_mvp * vec4(a_vertex,1.0);\
+					gl_PointSize = 5.0;\
+				}\
+				', '\
+				precision highp float;\
+				uniform vec4 u_color;\
+				void main() {\
+				  gl_FragColor = u_color;\
+				}\
+			');
+        this.context.shaders["flat"] = this._flat_shader;
+    },
+    append: function (id) {
+        document.getElementById(id).appendChild(this.context.canvas);
     }
+
 };
+

@@ -19,7 +19,7 @@ EZ.Renderer = function (options) {
         u_model: {},
         u_mvp: this.mvp_matrix
     };
-
+    this.loadAssets();
 };
 
 EZ.Renderer.prototype = {
@@ -37,6 +37,7 @@ EZ.Renderer.prototype = {
         this.addMesh("circle", GL.Mesh.circle({xz: true}));
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
+        this.createShaders();
     },
 
     setSize: function (width, height) {
@@ -44,8 +45,8 @@ EZ.Renderer.prototype = {
         this.context.canvas.height = height;
     },
 
-    setModelMatrix: function (matrix, cam) {
-        mat4.multiply(this.mvp_matrix, cam.view_projection, matrix);
+    setModelMatrix: function (model, cam) {
+        mat4.multiply(this.mvp_matrix, cam.view_projection, model);
     },
 
     setUniforms: function (cam, entity) {
@@ -85,7 +86,30 @@ EZ.Renderer.prototype = {
             this.setModelMatrix(en.global_transform, camera);
             this.setUniforms(camera, en);
             if (en.render)
-                en.render(this.context, camera);
+                en.render(this.context);
         }
+    },
+    createShaders: function (){
+        this._flat_shader = new GL.Shader('\
+				precision highp float;\
+				attribute vec3 a_vertex;\
+				uniform mat4 u_mvp;\
+				void main() {\
+					gl_Position = u_mvp * vec4(a_vertex,1.0);\
+					gl_PointSize = 5.0;\
+				}\
+				', '\
+				precision highp float;\
+				uniform vec4 u_color;\
+				void main() {\
+				  gl_FragColor = u_color;\
+				}\
+			');
+        this.context.shaders["flat"] = this._flat_shader;
+    },
+    append: function (id) {
+        document.getElementById(id).appendChild(this.context.canvas);
     }
+
 };
+

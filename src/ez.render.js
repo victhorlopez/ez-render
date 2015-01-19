@@ -1,7 +1,6 @@
 /**
  * Created by vik on 17/01/2015.
  *
- *
  *    dependencies: gl-matrix.js, litegl.js
  */
 
@@ -25,3 +24,4 @@ EZ.temp_vec2 = vec3.create();
 EZ.temp_vec3 = vec3.create();
 EZ.temp_vec4 = vec3.create();
 EZ.temp_quat = quat.create();
+EZ.temp_mat3 = mat3.create();
