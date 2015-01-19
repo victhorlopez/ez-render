@@ -22,6 +22,6 @@ EZ.BLACK = vec3.fromValues(0,0,0);
 EZ.temp_mat4 = mat4.create();
 EZ.temp_vec2 = vec3.create();
 EZ.temp_vec3 = vec3.create();
-EZ.temp_vec4 = vec3.create();
+EZ.temp_vec4 = vec4.create();
 EZ.temp_quat = quat.create();
 EZ.temp_mat3 = mat3.create();

@@ -21,7 +21,6 @@ EZ.ECamera = function (fov, aspect, near, far) {
     this.projection_matrix = mat4.create();
     this.view_projection = mat4.create();
 
-
     this.type = "camera";
 };
 

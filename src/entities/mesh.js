@@ -18,7 +18,7 @@ EZ.EMesh = function (fov, aspect, near, far) {
     this.uniforms = { u_color: this.color, u_color_texture: 0 };
     this.flags = {}; // rendering flags: flip_normals , depth_test, depth_write, blend, two_sided
 
-    this.type = "object3d";
+    this.type = "mesh";
 };
 
 EZ.EMesh.prototype = Object.create(EZ.Entity.prototype); // we inherit from Entity
@@ -32,7 +32,7 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
         this.textures[ channel ] = texture;
 };
 // from rendeer
-EZ.EMesh.prototype.render = function (gl) {
+EZ.EMesh.prototype.render = function (renderer) {
     //get mesh
     if(this.mesh)
         this.mesh_obj = gl.meshes[this.mesh];
@@ -74,6 +74,7 @@ EZ.EMesh.prototype.render = function (gl) {
     }
 
     shader.uniforms(this.uniforms);
+    shader.uniforms(renderer.uniforms);
     shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.flags.primitive);
 
     if (this.flags.flip_normals) gl.frontFace(gl.CCW);

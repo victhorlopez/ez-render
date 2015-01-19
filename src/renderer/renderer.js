@@ -9,9 +9,8 @@ EZ.declare('EZ.Renderer');
 // no options yet
 EZ.Renderer = function (options) {
 
-    this.context = GL.create({width: 1, height: 1});
-
     // vars needed for the rendering
+    this.color = [0,0,0,0];
     this.mvp_matrix = mat4.create();
     this.uniforms = {
         u_view: {},
@@ -19,7 +18,6 @@ EZ.Renderer = function (options) {
         u_model: {},
         u_mvp: this.mvp_matrix
     };
-    this.loadAssets();
 };
 
 EZ.Renderer.prototype = {
@@ -37,16 +35,22 @@ EZ.Renderer.prototype = {
         this.addMesh("circle", GL.Mesh.circle({xz: true}));
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
+        this.addMesh("plane", GL.Mesh.box({size:50}));
         this.createShaders();
     },
 
-    setSize: function (width, height) {
+    createCanvas: function (width, height) {
+        this.context = GL.create({width: width, height: height});
         this.context.canvas.width = width;
         this.context.canvas.height = height;
+        this.loadAssets();
     },
 
     setModelMatrix: function (model, cam) {
         mat4.multiply(this.mvp_matrix, cam.view_projection, model);
+        //vec4.set(EZ.temp_vec4, 0,0,0,1);
+        //vec4.transformMat4( EZ.temp_vec4,EZ.temp_vec4,this.mvp_matrix);
+        //console.log(vec4.str(EZ.temp_vec4));
     },
 
     setUniforms: function (cam, entity) {
@@ -57,7 +61,10 @@ EZ.Renderer.prototype = {
             u_mvp: this.mvp_matrix
         };
     },
-
+    clearContext: function(){
+        this.context.clearColor( this.color[0],this.color[1],this.color[2],this.color[3] );
+        this.context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+    },
     // method from rendeer
     render: function (scene, camera) {
         if (!scene)
@@ -65,8 +72,8 @@ EZ.Renderer.prototype = {
         if (!camera)
             throw("Renderer.render: camera not provided");
 
+        this.clearContext();
 
-        // TODO scene doesnt find parent attributes
         //find which nodes should we render
         var entities = scene.getAllChildren();
         var en = null;
@@ -83,10 +90,12 @@ EZ.Renderer.prototype = {
         for (i = 0; i < entities.length; ++i) {
             en = entities[i];
 
-            this.setModelMatrix(en.global_transform, camera);
-            this.setUniforms(camera, en);
-            if (en.render)
-                en.render(this.context);
+            if (en.render){
+                this.setModelMatrix(en.global_transform, camera);
+                this.setUniforms(camera, en);
+                en.render(this);
+            }
+
         }
     },
     createShaders: function (){

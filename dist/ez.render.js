@@ -22,7 +22,7 @@ EZ.BLACK = vec3.fromValues(0,0,0);
 EZ.temp_mat4 = mat4.create();
 EZ.temp_vec2 = vec3.create();
 EZ.temp_vec3 = vec3.create();
-EZ.temp_vec4 = vec3.create();
+EZ.temp_vec4 = vec4.create();
 EZ.temp_quat = quat.create();
 EZ.temp_mat3 = mat3.create();
 
@@ -163,7 +163,7 @@ EZ.EMesh = function (fov, aspect, near, far) {
     this.uniforms = { u_color: this.color, u_color_texture: 0 };
     this.flags = {}; // rendering flags: flip_normals , depth_test, depth_write, blend, two_sided
 
-    this.type = "object3d";
+    this.type = "mesh";
 };
 
 EZ.EMesh.prototype = Object.create(EZ.Entity.prototype); // we inherit from Entity
@@ -177,7 +177,7 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
         this.textures[ channel ] = texture;
 };
 // from rendeer
-EZ.EMesh.prototype.render = function (gl) {
+EZ.EMesh.prototype.render = function (renderer) {
     //get mesh
     if(this.mesh)
         this.mesh_obj = gl.meshes[this.mesh];
@@ -219,6 +219,7 @@ EZ.EMesh.prototype.render = function (gl) {
     }
 
     shader.uniforms(this.uniforms);
+    shader.uniforms(renderer.uniforms);
     shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.flags.primitive);
 
     if (this.flags.flip_normals) gl.frontFace(gl.CCW);
@@ -275,6 +276,7 @@ EZ.ECamera.prototype.constructor = EZ.ECamera;
 
 
 EZ.ECamera.prototype.updateProjectionMatrix = function () {
+    this.lookAt([0,0,0]);
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
     mat4.mul(this.view_projection , this.projection_matrix, this.global_transform); // the view matrix is the transform
 };
@@ -292,9 +294,8 @@ EZ.ECamera.prototype.updateProjectionMatrix = function () {
 // no options yet
 EZ.Renderer = function (options) {
 
-    this.context = GL.create({width: 1, height: 1});
-
     // vars needed for the rendering
+    this.color = [0,0,0,0];
     this.mvp_matrix = mat4.create();
     this.uniforms = {
         u_view: {},
@@ -302,7 +303,6 @@ EZ.Renderer = function (options) {
         u_model: {},
         u_mvp: this.mvp_matrix
     };
-    this.loadAssets();
 };
 
 EZ.Renderer.prototype = {
@@ -320,16 +320,22 @@ EZ.Renderer.prototype = {
         this.addMesh("circle", GL.Mesh.circle({xz: true}));
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
+        this.addMesh("plane", GL.Mesh.box({size:50}));
         this.createShaders();
     },
 
-    setSize: function (width, height) {
+    createCanvas: function (width, height) {
+        this.context = GL.create({width: width, height: height});
         this.context.canvas.width = width;
         this.context.canvas.height = height;
+        this.loadAssets();
     },
 
     setModelMatrix: function (model, cam) {
         mat4.multiply(this.mvp_matrix, cam.view_projection, model);
+        //vec4.set(EZ.temp_vec4, 0,0,0,1);
+        //vec4.transformMat4( EZ.temp_vec4,EZ.temp_vec4,this.mvp_matrix);
+        //console.log(vec4.str(EZ.temp_vec4));
     },
 
     setUniforms: function (cam, entity) {
@@ -340,7 +346,10 @@ EZ.Renderer.prototype = {
             u_mvp: this.mvp_matrix
         };
     },
-
+    clearContext: function(){
+        this.context.clearColor( this.color[0],this.color[1],this.color[2],this.color[3] );
+        this.context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+    },
     // method from rendeer
     render: function (scene, camera) {
         if (!scene)
@@ -348,8 +357,8 @@ EZ.Renderer.prototype = {
         if (!camera)
             throw("Renderer.render: camera not provided");
 
+        this.clearContext();
 
-        // TODO scene doesnt find parent attributes
         //find which nodes should we render
         var entities = scene.getAllChildren();
         var en = null;
@@ -366,10 +375,12 @@ EZ.Renderer.prototype = {
         for (i = 0; i < entities.length; ++i) {
             en = entities[i];
 
-            this.setModelMatrix(en.global_transform, camera);
-            this.setUniforms(camera, en);
-            if (en.render)
-                en.render(this.context);
+            if (en.render){
+                this.setModelMatrix(en.global_transform, camera);
+                this.setUniforms(camera, en);
+                en.render(this);
+            }
+
         }
     },
     createShaders: function (){

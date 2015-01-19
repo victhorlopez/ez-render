@@ -3,33 +3,33 @@
 <head>
     <title>Test EZ Render</title>
     <style>
-        body { margin: 0; }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0 }
         canvas { width: 100%; height: 100% }
     </style>
     <script src="external/gl-matrix.js"></script>
     <script src="external/litegl.js"></script>
     <script src="dist/ez.render.js"></script>
+
+
 </head>
 <body>
 <div id="mycanvas"></div>
 <script>
     var renderer = new EZ.Renderer();
-    console.log(screen);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.createCanvas(window.innerWidth, window.innerHeight);
     renderer.append('mycanvas');
 
 
     var camera = new EZ.ECamera(45, gl.canvas.width / gl.canvas.height, 1, 1000);
-    camera.position = [0, 0, 10];
-    //camera.lookAt([0,0,0]);
+    camera.position = [0, 0, -10];
     var scene = new EZ.EScene();
     var node = new EZ.EMesh();
     node.mesh = "sphere";
     scene.addChild(node);
-    node = new EZ.EMesh();
-    node.mesh = "grid";
-    node.scale = [100,100,100];
-    scene.addChild(node);
+//    node = new EZ.EMesh();
+//    node.mesh = "grid";
+//    node.scale = [100,100,100];
+//    scene.addChild(node);
 
     scene.addChild(camera);
     function render () {
