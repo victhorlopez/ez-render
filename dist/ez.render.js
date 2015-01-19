@@ -349,7 +349,7 @@ EZ.CameraController = function ( renderer ) {
             vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale);
 
 
-            vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
+            //vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
 
             vec3.add(this.cam.position,this.target, EZ.temp_vec4 );
 
