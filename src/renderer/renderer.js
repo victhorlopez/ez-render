@@ -2,12 +2,10 @@
  * Created by vik on 17/01/2015.
  */
 
-/**
- * @depend ../entity.js
- * @depend ../camera.js
- * @depend ../scene.js
- */
 
+EZ.require('EZ.ECamera');
+EZ.require('EZ.EScene');
+EZ.declare('EZ.Renderer');
 // no options yet
 EZ.Renderer = function (options) {
 

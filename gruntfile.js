@@ -1,30 +1,27 @@
+
+
 module.exports = function (grunt) {
 
+    var path = require('path');
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         concat_in_order: {
             your_target: {
                 files: {
-                    'dist/<%= pkg.name %>.js': ['src/*.js', 'src/**/*.js']
+                    'dist/<%= pkg.name %>.js': ['src/ez.render.js', 'src/*?/*.js']
                 },
                 options: {
-                    extractRequired: function (filepath, filecontent) {
-                        var workingdir = path.normalize(filepath).split(path.sep);
-                        workingdir.pop();
 
-                        var deps = this.getMatches(/\*\s*@depend\s(.*\.js)/g, filecontent);
-                        deps.forEach(function (dep, i) {
-                            var dependency = workingdir.concat([dep]);
-                            deps[i] = path.join.apply(null, dependency);
-                        });
-                        return deps;
-                    },
-                    extractDeclared: function (filepath) {
-                        return [filepath];
-                    },
-                    onlyConcatRequiredFiles: false
                 }
             }
+        },
+        strip_code: {
+            options: {
+                pattern: /EZ.(require|declare)\((.*?)\);/g
+            },
+            your_target: {
+                src: 'dist/<%= pkg.name %>.js'
+            },
         },
         uglify: {
             options: {
@@ -40,7 +37,7 @@ module.exports = function (grunt) {
             files: ['test/**/*.html']
         },
         jshint: {
-            files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+            files: ['<%= Object.keys(concat_in_order.your_target.files)[0] %>'],
             options: {
                 // options here to override JSHint defaults
                 globals: {
@@ -60,12 +57,11 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-concat-in-order');
+    grunt.loadNpmTasks('grunt-strip-code');
 
     grunt.registerTask('test', ['jshint', 'qunit']);
 
-    grunt.registerTask('default', ['jshint', 'qunit', 'concat_in_order', 'uglify']);
+    grunt.registerTask('default', ['qunit', 'concat_in_order', 'strip_code', 'jshint', 'uglify']);
 
 };

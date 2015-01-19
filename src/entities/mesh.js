@@ -2,9 +2,8 @@
  * Created by vik on 17/01/2015.
  */
 
-/**
- * @depend entity.js
- */
+EZ.require('EZ.Entity');
+EZ.declare('EZ.EMesh');
 
 EZ.EMesh = function (fov, aspect, near, far) {
 

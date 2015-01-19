@@ -6,8 +6,10 @@
  */
 
 
+
 var EZ = EZ || {};
 
+EZ.declare('EZ.Render');
 
 /* consts ************/
 EZ.ZERO = vec3.fromValues(0,0,0);

@@ -2,7 +2,7 @@
  * Created by vik on 17/01/2015.
  */
 
-
+EZ.declare('EZ.Entity');
 
 EZ.entity_count = 0;
 
