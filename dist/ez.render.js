@@ -92,8 +92,9 @@ EZ.Entity.prototype = {
     lookAt: function (target){
         mat4.lookAt(this.global_transform, this.position, target, this.up);
         //mat3.fromMat4(EZ.temp_mat3, this.global_transform);
-        //quat.fromMat3(this.rotation, EZ.temp_mat3);
-        quat.fromMat4(this.rotation, this.global_transform); //  quat.fromMat4 says not tested
+        //quat.fromMat3(this.quat, EZ.temp_mat3);
+        quat.fromMat4(this.quat, this.global_transform); //  quat.fromMat4 says not tested
+        this.local_needs_update = true;
     },
     addChild: function(child){
         if(child.parent)
@@ -266,6 +267,7 @@ EZ.ECamera = function (fov, aspect, near, far) {
     // matrices
     this.projection_matrix = mat4.create();
     this.view_projection = mat4.create();
+    this.view = mat4.create();
 
     this.type = "camera";
 };
@@ -275,8 +277,9 @@ EZ.ECamera.prototype.constructor = EZ.ECamera;
 
 
 EZ.ECamera.prototype.updateProjectionMatrix = function () {
+    mat4.invert(this.view,this.global_transform); // the view matrix is inverse of the transform
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
-    mat4.mul(this.view_projection , this.projection_matrix, this.global_transform); // the view matrix is the transform
+    mat4.mul(this.view_projection , this.projection_matrix, this.view);
 };
 
 
@@ -331,14 +334,11 @@ EZ.Renderer.prototype = {
 
     setModelMatrix: function (model, cam) {
         mat4.multiply(this.mvp_matrix, cam.view_projection, model);
-        //vec4.set(EZ.temp_vec4, 0,0,0,1);
-        //vec4.transformMat4( EZ.temp_vec4,EZ.temp_vec4,this.mvp_matrix);
-        //console.log(vec4.str(EZ.temp_vec4));
     },
 
     setUniforms: function (cam, entity) {
         this.uniforms = {
-            u_view: cam.global_transform,
+            u_view: cam.view,
             u_viewprojection: cam.view_projection,
             u_model: entity.global_transform,
             u_mvp: this.mvp_matrix
@@ -382,6 +382,7 @@ EZ.Renderer.prototype = {
         }
     },
     createShaders: function (){
+        // shaders from rendeer
         this._flat_shader = new GL.Shader('\
 				precision highp float;\
 				attribute vec3 a_vertex;\

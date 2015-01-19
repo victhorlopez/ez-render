@@ -20,6 +20,7 @@ EZ.ECamera = function (fov, aspect, near, far) {
     // matrices
     this.projection_matrix = mat4.create();
     this.view_projection = mat4.create();
+    this.view = mat4.create();
 
     this.type = "camera";
 };
@@ -29,8 +30,9 @@ EZ.ECamera.prototype.constructor = EZ.ECamera;
 
 
 EZ.ECamera.prototype.updateProjectionMatrix = function () {
+    mat4.invert(this.view,this.global_transform); // the view matrix is inverse of the transform
     mat4.perspective(this.projection_matrix, this.fov * DEG2RAD, this.aspect, this.near, this.far);
-    mat4.mul(this.view_projection , this.projection_matrix, this.global_transform); // the view matrix is the transform
+    mat4.mul(this.view_projection , this.projection_matrix, this.view);
 };
 
 

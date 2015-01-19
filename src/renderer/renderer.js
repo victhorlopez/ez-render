@@ -48,14 +48,11 @@ EZ.Renderer.prototype = {
 
     setModelMatrix: function (model, cam) {
         mat4.multiply(this.mvp_matrix, cam.view_projection, model);
-        //vec4.set(EZ.temp_vec4, 0,0,0,1);
-        //vec4.transformMat4( EZ.temp_vec4,EZ.temp_vec4,this.mvp_matrix);
-        //console.log(vec4.str(EZ.temp_vec4));
     },
 
     setUniforms: function (cam, entity) {
         this.uniforms = {
-            u_view: cam.global_transform,
+            u_view: cam.view,
             u_viewprojection: cam.view_projection,
             u_model: entity.global_transform,
             u_mvp: this.mvp_matrix

@@ -64,8 +64,9 @@ EZ.Entity.prototype = {
     lookAt: function (target){
         mat4.lookAt(this.global_transform, this.position, target, this.up);
         //mat3.fromMat4(EZ.temp_mat3, this.global_transform);
-        //quat.fromMat3(this.rotation, EZ.temp_mat3);
-        quat.fromMat4(this.rotation, this.global_transform); //  quat.fromMat4 says not tested
+        //quat.fromMat3(this.quat, EZ.temp_mat3);
+        quat.fromMat4(this.quat, this.global_transform); //  quat.fromMat4 says not tested
+        this.local_needs_update = true;
     },
     addChild: function(child){
         if(child.parent)
