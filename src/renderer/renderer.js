@@ -168,9 +168,9 @@ EZ.Renderer.prototype = {
         node.appendChild(this.context.canvas);
     },
     resize: function (width, height) {
-        gl.canvas.width = w;
-        gl.canvas.height = h;
-        gl.viewport(0, 0, w, h);
+        gl.canvas.width = width;
+        gl.canvas.height = height;
+        gl.viewport(0, 0, width, height);
         if(this.current_cam){
             this.current_cam.aspect = gl.canvas.width / gl.canvas.height;
         }
