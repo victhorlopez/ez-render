@@ -44,15 +44,15 @@ EZ.Renderer.prototype = {
         this.context.canvas.height = height;
     },
 
-    setModelMatrix: function (cam, matrix) {
+    setModelMatrix: function (matrix, cam) {
         mat4.multiply(this.mvp_matrix, cam.view_projection, matrix);
     },
 
-    setUniforms: function (cam, en) {
+    setUniforms: function (cam, entity) {
         this.uniforms = {
             u_view: cam.global_transform,
             u_viewprojection: cam.view_projection,
-            u_model: en.global_transform,
+            u_model: entity.global_transform,
             u_mvp: this.mvp_matrix
         };
     },
@@ -83,7 +83,7 @@ EZ.Renderer.prototype = {
             en = entities[i];
 
             this.setModelMatrix(en.global_transform, camera);
-            this.setUniforms(camera);
+            this.setUniforms(camera, en);
             if (en.render)
                 en.render(this.context, camera);
         }

@@ -68,7 +68,7 @@ EZ.Entity.prototype = {
         mat4.identity(this.local_transform);
         mat4.translate(this.local_transform,this.local_transform, this.position);
         mat4.fromQuat(EZ.temp_mat4, this.quat);
-        mat4.mul(this.local_transform, EZ.temp_mat4);
+        mat4.mul(this.local_transform, this.local_transform, EZ.temp_mat4);
         mat4.scale(this.local_transform,this.local_transform, this.scale);
 
         this.global_needs_update = true;
@@ -92,7 +92,7 @@ EZ.Entity.prototype = {
             throw ("the child "+ child.name+ " has already a parent");
 
         child.parent = this;
-        children.push(child);
+        this.children.push(child);
 
         child.propagate("updateGlobalMatrix", [true]);
     },
@@ -319,15 +319,15 @@ EZ.Renderer.prototype = {
         this.context.canvas.height = height;
     },
 
-    setModelMatrix: function (cam, matrix) {
+    setModelMatrix: function (matrix, cam) {
         mat4.multiply(this.mvp_matrix, cam.view_projection, matrix);
     },
 
-    setUniforms: function (cam, en) {
+    setUniforms: function (cam, entity) {
         this.uniforms = {
             u_view: cam.global_transform,
             u_viewprojection: cam.view_projection,
-            u_model: en.global_transform,
+            u_model: entity.global_transform,
             u_mvp: this.mvp_matrix
         };
     },
@@ -358,7 +358,7 @@ EZ.Renderer.prototype = {
             en = entities[i];
 
             this.setModelMatrix(en.global_transform, camera);
-            this.setUniforms(camera);
+            this.setUniforms(camera, en);
             if (en.render)
                 en.render(this.context, camera);
         }
