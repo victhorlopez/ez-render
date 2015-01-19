@@ -166,7 +166,7 @@ EZ.Renderer.prototype = {
     },
     append: function (node) {
         node.appendChild(this.context.canvas);
-    }
+    },
     resize: function (width, height) {
         gl.canvas.width = w;
         gl.canvas.height = h;
