@@ -13,6 +13,7 @@ EZ.CameraController = function ( renderer ) {
     this.ctx = renderer.context; // ctx = context
     this.cam = null;
     this.needs_update = true;
+    this.needs_rotation_update = true;
 
     this.radius = vec3.create();
 
@@ -25,19 +26,23 @@ EZ.CameraController = function ( renderer ) {
     var that = this;
     this.onMouseMove = function (e) {
         if(e.dragging){
+            // workaround
             var delta = e.deltax > 0.1 || e.deltax < -0.1 ? -e.deltax : 0;
-            if(delta)
+            if(delta){
                 quat.setAxisAngle( that.cam.quat, [0,1,0], delta * DEG2RAD );
-            else
-                quat.identity(that.cam.quat);
-            delta = e.deltay > 0.1 || e.deltay < -0.1 ? -e.deltay : 0;
-            if(delta)
-                quat.setAxisAngle( EZ.temp_quat, [1,0,0], delta * DEG2RAD );
-            else
-                quat.identity(EZ.temp_quat);
+                //quat.mul(that.cam.quat, that.cam.quat,EZ.temp_quat);
+                that.cam.needs_local_update = true;
+                that.needs_rot_update = true;
+                that.needs_update = true;
+            }
 
-            quat.mul(that.cam.quat,EZ.temp_quat, that.cam.quat);
-            that.needs_update = true;
+//            delta = e.deltay > 0.1 || e.deltay < -0.1 ? -e.deltay : 0;
+//            if(delta)
+//                quat.setAxisAngle( EZ.temp_quat, [1,0,0], delta * DEG2RAD );
+//            else
+//                quat.identity(EZ.temp_quat);
+
+
         }
     };
 
@@ -59,15 +64,14 @@ EZ.CameraController = function ( renderer ) {
             vec3.sub(EZ.temp_vec4,this.cam.position, this.cam.target);
             vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale);
 
-
-            //vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
-
+            if(this.needs_rot_update)
+                vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
             vec3.add(this.cam.position,this.cam.target, EZ.temp_vec4 );
 
-            quat.identity(that.cam.quat);
             this.scale = 1.0;
             this.cam.lookAt(this.cam.target);
             this.needs_update = false;
+            this.needs_rot_update = false
         }
     };
 
