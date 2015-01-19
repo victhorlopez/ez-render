@@ -8,6 +8,7 @@ EZ.ECamera = function (fov, aspect, near, far) {
 
     EZ.Entity.call( this );
 
+    this.target = vec3.create();
     // so far perspective cam, if I need ortho inhertic from this class
     this.aspect = aspect || 1.0;
     this.fov = fov || 45;
