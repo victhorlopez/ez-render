@@ -106,22 +106,25 @@ EZ.Entity.prototype = {
         child.propagate("updateGlobalMatrix", [true]);
     },
 
-//    removeChild: function(child){
-//        if(child.parent)
-//            throw ("the child "+ child.name+ " has already a parent");
-//
-//        child.parent = this;
-//        children.push(child);
-//
-//        this.propagate("updateGlobalMatrix", [true])
-//
-//    },
+    removeChild: function(child){
+        if(child.parent !== this )
+            throw ("the child "+ child.name+ " has a different parent");
+
+        child.parent = null;
+        this.children.push(child);
+        for(var i = this.children.length - 1; i >= 0; i--) {
+            if(this.children[i] === child) {
+                this.children.splice(i, 1);
+            }
+        }
+        this.propagate("updateGlobalMatrix", [true]);
+
+    },
 
     // method from rendeer
     propagate: function(method, params)
     {
-        for(var i = 0, l = this.children.length; i < l; i++)
-        {
+        for(var i = this.children.length - 1; i >= 0; i--) {
             var e = this.children[i];
             if(!e)
                 continue;
@@ -134,8 +137,7 @@ EZ.Entity.prototype = {
     getAllChildren: function()
     {
         var r = [];
-        for(var i = 0, l = this.children.length; i < l; i++)
-        {
+        for(var i = this.children.length - 1; i >= 0; i--) {
             var en = this.children[i];
             r.push(en);
             en.getAllChildren(r);
@@ -361,7 +363,7 @@ EZ.Renderer.prototype = {
         var entities = scene.getAllChildren();
         var en = null;
         //recompute matrices
-        for (var i = 0; i < entities.length; ++i) {
+        for(var i = entities.length - 1; i >= 0; i--) {
             en = entities[i];
             en.updateGlobalMatrix(true);
         }
@@ -370,7 +372,7 @@ EZ.Renderer.prototype = {
         camera.updateProjectionMatrix();
 
         //rendering
-        for (i = 0; i < entities.length; ++i) {
+        for(var i = entities.length - 1; i >= 0; i--) {
             en = entities[i];
 
             if (en.render){

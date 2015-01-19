@@ -75,7 +75,7 @@ EZ.Renderer.prototype = {
         var entities = scene.getAllChildren();
         var en = null;
         //recompute matrices
-        for (var i = 0; i < entities.length; ++i) {
+        for(var i = entities.length - 1; i >= 0; i--) {
             en = entities[i];
             en.updateGlobalMatrix(true);
         }
@@ -84,7 +84,7 @@ EZ.Renderer.prototype = {
         camera.updateProjectionMatrix();
 
         //rendering
-        for (i = 0; i < entities.length; ++i) {
+        for(var i = entities.length - 1; i >= 0; i--) {
             en = entities[i];
 
             if (en.render){
