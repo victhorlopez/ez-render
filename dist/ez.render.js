@@ -263,6 +263,7 @@ EZ.ECamera = function (fov, aspect, near, far) {
 
     EZ.Entity.call( this );
 
+    this.target = vec3.create();
     // so far perspective cam, if I need ortho inhertic from this class
     this.aspect = aspect || 1.0;
     this.fov = fov || 45;
@@ -302,7 +303,6 @@ EZ.CameraController = function ( renderer ) {
     this.cam = null;
     this.needs_update = true;
 
-    this.target = vec3.create(); // we set it to point to 0,0,0
     this.radius = vec3.create();
 
 
@@ -345,17 +345,17 @@ EZ.CameraController = function ( renderer ) {
         this.cam = this.renderer.current_cam;
         if(this.cam && this.needs_update){
             // computations for the zoom, EZ.temp_vec4 is the new radius
-            vec3.sub(EZ.temp_vec4,this.cam.position, this.target);
+            vec3.sub(EZ.temp_vec4,this.cam.position, this.cam.target);
             vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale);
 
 
             //vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
 
-            vec3.add(this.cam.position,this.target, EZ.temp_vec4 );
+            vec3.add(this.cam.position,this.cam.target, EZ.temp_vec4 );
 
             quat.identity(that.cam.quat);
             this.scale = 1.0;
-            this.cam.lookAt(this.target);
+            this.cam.lookAt(this.cam.target);
             this.needs_update = false;
         }
     };

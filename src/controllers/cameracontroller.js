@@ -56,17 +56,17 @@ EZ.CameraController = function ( renderer ) {
         this.cam = this.renderer.current_cam;
         if(this.cam && this.needs_update){
             // computations for the zoom, EZ.temp_vec4 is the new radius
-            vec3.sub(EZ.temp_vec4,this.cam.position, cam.target);
+            vec3.sub(EZ.temp_vec4,this.cam.position, this.cam.target);
             vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale);
 
 
             //vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
 
-            vec3.add(this.cam.position,cam.target, EZ.temp_vec4 );
+            vec3.add(this.cam.position,this.cam.target, EZ.temp_vec4 );
 
             quat.identity(that.cam.quat);
             this.scale = 1.0;
-            this.cam.lookAt(cam.target);
+            this.cam.lookAt(this.cam.target);
             this.needs_update = false;
         }
     };
