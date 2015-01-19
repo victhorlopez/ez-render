@@ -164,8 +164,8 @@ EZ.Renderer.prototype = {
         gl.shaders["phong"] = this._phong_shader;
         gl.shaders["phong"].uniforms( phong_uniforms );
     },
-    append: function (id) {
-        document.getElementById(id).appendChild(this.context.canvas);
+    append: function (node) {
+        node.appendChild(this.context.canvas);
     }
 
 };
