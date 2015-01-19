@@ -70,12 +70,12 @@ EZ.EMesh.prototype.render = function (renderer) {
     //blend
     if (this.flags.blend) {
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, node.blendMode == "additive" ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFunc(gl.SRC_ALPHA, this.blendMode == "additive" ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
     }
 
     shader.uniforms(this.uniforms);
     shader.uniforms(renderer.uniforms);
-    shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : node.flags.primitive);
+    shader.draw(this.mesh_obj , this.flags.primitive === undefined ? gl.TRIANGLES : this.flags.primitive);
 
     if (this.flags.flip_normals) gl.frontFace(gl.CCW);
     if (this.flags.depth_test === false) gl.enable(gl.DEPTH_TEST);
