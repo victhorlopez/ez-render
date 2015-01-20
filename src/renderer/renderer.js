@@ -45,6 +45,7 @@ EZ.Renderer.prototype = {
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
         this.addMesh("plane", GL.Mesh.box({size:50}));
+        gl.textures["cubemap"] = GL.Texture.cubemapFromURL( "assets/cube2.jpg", {minFilter: gl.NEAREST});
         this.createShaders();
     },
 
@@ -121,7 +122,7 @@ EZ.Renderer.prototype = {
     },
     createShaders: function (){
         // shaders from rendeer
-        this._flat_shader = new GL.Shader('\
+        var flat_shader = new GL.Shader('\
 				precision highp float;\
 				attribute vec3 a_vertex;\
 				uniform mat4 u_mvp;\
@@ -136,10 +137,10 @@ EZ.Renderer.prototype = {
 				  gl_FragColor = u_color;\
 				}\
 			');
-        this.context.shaders["flat"] = this._flat_shader;
+        gl.shaders["flat"] = flat_shader;
         var phong_uniforms = { u_lightvector: vec3.fromValues(0.577, 0.577, 0.577), u_lightcolor: EZ.WHITE };
 
-        this._phong_shader = new GL.Shader('\
+        var phong_shader = new GL.Shader('\
 			precision highp float;\
 			attribute vec3 a_vertex;\
 			attribute vec3 a_normal;\
@@ -161,8 +162,34 @@ EZ.Renderer.prototype = {
 			  gl_FragColor = u_color * max(0.0, dot(u_lightvector,N)) * vec4(u_lightcolor,1.0);\
 			}\
 		');
-        gl.shaders["phong"] = this._phong_shader;
+        gl.shaders["phong"] = phong_shader;
         gl.shaders["phong"].uniforms( phong_uniforms );
+
+        var cubemap_shader = new Shader('\
+				precision highp float;\
+				attribute vec3 a_vertex;\
+				attribute vec3 a_normal;\
+				varying vec3 v_pos;\
+				varying vec3 v_normal;\
+				uniform mat4 u_mvp;\
+				uniform mat4 u_model;\
+				void main() {\
+					v_pos = a_vertex.xyz;\
+					v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+					gl_Position = u_mvp * vec4(a_vertex,1.0);\
+				}\
+				', '\
+				precision highp float;\
+				varying vec3 v_normal;\
+				varying vec3 v_pos;\
+				uniform vec4 u_color;\
+				uniform samplerCube u_cubemap_texture;\
+				void main() {\
+				  vec3 N = normalize(v_normal);\
+				  gl_FragColor = u_color * textureCube( u_cubemap_texture, v_pos );\
+				}\
+			');
+        gl.shaders["cubemap"] = cubemap_shader;
     },
     append: function (node) {
         node.appendChild(this.context.canvas);
