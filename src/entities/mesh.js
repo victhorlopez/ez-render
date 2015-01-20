@@ -35,10 +35,10 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
 };
 
 EZ.EMesh.prototype.setSkyBox = function (){
-    box.flags.depth_write = false;
-    box.flags.depth_test = false;
-    box.render_priority = EZ.PRIORITY_BACKGROUND;
-    box.flags.flip_normals = true;
+    this.flags.depth_write = false;
+    this.flags.depth_test = false;
+    this.render_priority = EZ.PRIORITY_BACKGROUND;
+    this.flags.flip_normals = true;
 };
 
 // from rendeer
