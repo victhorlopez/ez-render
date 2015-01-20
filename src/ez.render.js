@@ -25,3 +25,10 @@ EZ.temp_vec3 = vec3.create();
 EZ.temp_vec4 = vec4.create();
 EZ.temp_quat = quat.create();
 EZ.temp_mat3 = mat3.create();
+
+/* priority render values ****/
+
+EZ.PRIORITY_BACKGROUND = 30;
+EZ.PRIORITY_OPAQUE = 20;
+EZ.PRIORITY_ALPHA = 10;
+EZ.PRIORITY_HUD = 0;

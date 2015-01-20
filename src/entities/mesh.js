@@ -11,6 +11,8 @@ EZ.EMesh = function (fov, aspect, near, far) {
 
     this.color = vec4.fromValues(1, 1, 1, 1);
 
+    this.render_priority = EZ.PRIORITY_OPAQUE;
+
     this.shader = "";
     this.mesh = "";
     this.mesh_obj = null;
@@ -31,6 +33,14 @@ EZ.EMesh.prototype.setTexture = function (channel, texture) {
     else if (typeof(texture) == "string")
         this.textures[ channel ] = texture;
 };
+
+EZ.EMesh.prototype.setSkyBox = function (){
+    box.flags.depth_write = false;
+    box.flags.depth_test = false;
+    box.render_priority = EZ.PRIORITY_BACKGROUND;
+    box.flags.flip_normals = true;
+};
+
 // from rendeer
 EZ.EMesh.prototype.render = function (renderer) {
     //get mesh

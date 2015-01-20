@@ -71,7 +71,7 @@ EZ.CameraController = function ( renderer ) {
             this.scale = 1.0;
             this.cam.lookAt(this.cam.target);
             this.needs_update = false;
-            this.needs_rot_update = false
+            this.needs_rot_update = false;
         }
     };
 

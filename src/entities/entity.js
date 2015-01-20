@@ -31,6 +31,9 @@ EZ.Entity = function() {
     // tree
     this.parent = null;
     this.children = [];
+
+    //
+    this.follow = null;
 };
 
 EZ.Entity.prototype = {
@@ -39,7 +42,7 @@ EZ.Entity.prototype = {
 
     updateLocalMatrix: function() {
         mat4.identity(this.local_transform);
-        mat4.translate(this.local_transform,this.local_transform, this.position);
+        mat4.translate(this.local_transform,this.local_transform, this.follow ? this.follow.position : this.position);
         mat4.fromQuat(EZ.temp_mat4, this.quat);
         mat4.mul(this.local_transform, this.local_transform, EZ.temp_mat4);
         mat4.scale(this.local_transform,this.local_transform, this.scale);
@@ -51,7 +54,7 @@ EZ.Entity.prototype = {
     // fast to skip parent update
     updateGlobalMatrix: function(fast) {
 
-        if(this.local_needs_update)
+        if(this.local_needs_update || (this.follow && this.follow.local_needs_update))
             this.updateLocalMatrix();
 
         if(this.parent){
@@ -77,7 +80,6 @@ EZ.Entity.prototype = {
 
         child.propagate("updateGlobalMatrix", [true]);
     },
-
     removeChild: function(child){
         if(child.parent !== this )
             throw ("the child "+ child.name+ " has a different parent");
@@ -92,7 +94,10 @@ EZ.Entity.prototype = {
         this.propagate("updateGlobalMatrix", [true]);
 
     },
-
+    // follows an entity with 0 offset
+    followEntity: function(entity){
+        this.follow = entity;
+    },
     // method from rendeer
     propagate: function(method, params)
     {
