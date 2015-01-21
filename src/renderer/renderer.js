@@ -255,7 +255,7 @@ EZ.Renderer.prototype = {
 				void main() {\
                   vec3 N = normalize(v_normal);\
 				  vec3 I = normalize(v_pos - u_eye);\
-				  vec3 refr = refract(-I,N, (0.666));\
+				  vec3 refr = refract(I,N, (0.666));\
 				  vec4 RR_color = u_color * textureCube( u_cubemap_texture, refr);\
 				  gl_FragColor = RR_color;\
 				}\
