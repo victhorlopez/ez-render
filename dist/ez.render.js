@@ -445,7 +445,11 @@ EZ.Renderer.prototype = {
         this.addMesh("box", GL.Mesh.box({size: 1}));
         this.addMesh("plane", GL.Mesh.box({size:50}));
         this.addMesh("plane", GL.Mesh.box({size:50}));
-        this.addMesh("suzanne", GL.Mesh.fromURL("assets/meshes/suzanne.obj"));
+        this.addMesh("monkey", GL.Mesh.fromURL("assets/meshes/suzanne.obj"));
+        // useful when you don't find a texture
+        gl.textures = {};
+        gl.textures["notfound"] = new GL.Texture(1,1,{ filter: gl.NEAREST, pixel_data: new Uint8Array([0,0,0,255]) });
+        gl.textures["white"] = new GL.Texture(1,1,{ filter: gl.NEAREST, pixel_data: new Uint8Array([255,255,255,255]) });
         gl.textures["cubemap"] = GL.Texture.cubemapFromURL( "assets/textures/cube2.jpg", {minFilter: gl.NEAREST});
         this.createShaders();
     },
