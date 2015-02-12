@@ -8,6 +8,7 @@ EZ.declare('EZ.Renderer');
 
 EZ.Renderer = function (options) {
 
+
     // current rendering objects
     this.current_cam = null;
     this.current_scene = null;
@@ -33,10 +34,19 @@ EZ.Renderer.prototype = {
     constructor: EZ.Renderer,
 
     addMesh: function (name,mesh) {
+        if(this.context != window.gl)
+            this.context.makeCurrent();
         this.context.meshes[name] = mesh;
     },
 
     addTextureFromURL: function (name, url) {
+        if(this.context != window.gl)
+            this.context.makeCurrent();
+        gl.textures[name] = GL.Texture.fromURL( url, {minFilter: gl.NEAREST},this.context);
+    },
+    addCubeMapFromURL: function (name, url) {
+        if(this.context != window.gl)
+            this.context.makeCurrent();
         gl.textures[name] = GL.Texture.cubemapFromURL( url, {minFilter: gl.NEAREST});
     },
 
@@ -56,8 +66,7 @@ EZ.Renderer.prototype = {
         gl.textures = {};
         gl.textures["notfound"] = new GL.Texture(1,1,{ filter: gl.NEAREST, pixel_data: new Uint8Array([0,0,0,255]) });
         gl.textures["white"] = new GL.Texture(1,1,{ filter: gl.NEAREST, pixel_data: new Uint8Array([255,255,255,255]) });
-        gl.textures["cubemap"] = GL.Texture.cubemapFromURL( "assets/textures/cube2.jpg", {minFilter: gl.NEAREST});
-        this.createShaders();
+
     },
 
     createCanvas: function (width, height) {
@@ -67,6 +76,7 @@ EZ.Renderer.prototype = {
         this.cam_controller = new EZ.CameraController(this);
 
         this.loadAssets();
+        this.createShaders();
     },
 
     setModelMatrix: function (model, cam) {
@@ -100,6 +110,10 @@ EZ.Renderer.prototype = {
             throw("Renderer.render: scene not provided");
         if (!camera)
             throw("Renderer.render: camera not provided");
+
+        if(this.context != window.gl)
+            this.context.makeCurrent();
+
         this.current_cam = camera;
         this.current_scene = scene;
         // we update the different objects before rendering
@@ -281,6 +295,8 @@ EZ.Renderer.prototype = {
         node.appendChild(this.context.canvas);
     },
     resize: function (width, height) {
+        if(this.context != window.gl)
+            this.context.makeCurrent();
         gl.canvas.width = width;
         gl.canvas.height = height;
         gl.viewport(0, 0, width, height);
