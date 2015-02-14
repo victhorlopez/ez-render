@@ -26,21 +26,34 @@ EZ.CameraController = function ( renderer ) {
     var that = this;
     this.onMouseMove = function (e) {
         if(e.dragging){
-            // workaround
+            // TBH this approach is incorrect, we are supposing that our target is in
+            // the 0,0,0 , otherwise it won't work
+
             var delta = e.deltax > 0.1 || e.deltax < -0.1 ? -e.deltax : 0;
             if(delta){
-                quat.setAxisAngle( that.cam.quat, [0,1,0], delta * DEG2RAD );
-                //quat.mul(that.cam.quat, that.cam.quat,EZ.temp_quat);
+                quat.setAxisAngle( EZ.temp_quat, [0,1,0], delta * DEG2RAD );
                 that.cam.needs_local_update = true;
-                that.needs_rot_update = true;
+                that.needs_x_rot = true;
                 that.needs_update = true;
             }
 
-//            delta = e.deltay > 0.1 || e.deltay < -0.1 ? -e.deltay : 0;
-//            if(delta)
-//                quat.setAxisAngle( EZ.temp_quat, [1,0,0], delta * DEG2RAD );
-//            else
-//                quat.identity(EZ.temp_quat);
+            // this works to set the limit in the Y axis
+            var front = that.cam.getFront();
+            vec3.normalize(front,front);
+            var dot = vec3.dot([0,1,0],front);
+            var dt = 0.01;
+            var angle = e.deltay > 0.1 ? dt : e.deltay < -0.1 ? -dt : 0;
+            if( dot + angle < 0.99 && dot + angle > -0.99){
+                delta = e.deltay > 0.1 || e.deltay < -0.1 ? -e.deltay : 0;
+                if(delta){
+                    var left = that.cam.getLeft();
+                    vec3.sub(left,left, that.cam.position);// -front
+                    quat.setAxisAngle( EZ.temp_quat2, left, delta * DEG2RAD );
+                    that.cam.needs_local_update = true;
+                    that.needs_y_rot = true;
+                    that.needs_update = true;
+                }
+            }
 
 
         }
@@ -51,7 +64,7 @@ EZ.CameraController = function ( renderer ) {
     };
     this.onMouseWheel= function (e) {
         var scale = Math.pow( 0.95, that.zoom_speed ); // each mousewheel is a 5% increment at speed 1
-        if(e.wheelDelta > 1)
+        if(e.deltaY < 1)
             that.scale *=0.95;
         else
             that.scale /=0.95;
@@ -61,17 +74,21 @@ EZ.CameraController = function ( renderer ) {
         this.cam = this.renderer.current_cam;
         if(this.cam && this.needs_update){
             // computations for the zoom, EZ.temp_vec4 is the new radius
-            vec3.sub(EZ.temp_vec4,this.cam.position, this.cam.target);
-            vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale);
+            vec3.sub(EZ.temp_vec4,this.cam.position, this.cam.target);// -front
+            vec3.scale(EZ.temp_vec4, EZ.temp_vec4, this.scale); // scale -front
 
-            if(this.needs_rot_update)
-                vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4,that.cam.quat );
-            vec3.add(this.cam.position,this.cam.target, EZ.temp_vec4 );
+            if( this.needs_x_rot)
+                vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4, EZ.temp_quat ); // rotate -front with quat
+            if( this.needs_y_rot)
+                vec3.transformQuat(EZ.temp_vec4, EZ.temp_vec4, EZ.temp_quat2 ); // rotate -front with quat
 
-            this.scale = 1.0;
-            this.cam.lookAt(this.cam.target);
+            vec3.add(this.cam.position,this.cam.target, EZ.temp_vec4 ); // add -front to target so it becomes our new position
+
+            this.scale = 1.0; // reset scale
+            this.cam.lookAt(this.cam.target); // set the correct lookAt of the camera
             this.needs_update = false;
-            this.needs_rot_update = false;
+            this.needs_y_rot = false;
+            this.needs_x_rot = false;
         }
     };
 

@@ -15,7 +15,6 @@ EZ.Entity = function() {
 
     // space attributes
     this.position = vec3.create();
-    this.rotation = vec3.create();
     this.quat = quat.create();
     this.scale = vec3.fromValues(1,1,1);
     this.up = vec3.clone(EZ.UP);
@@ -120,6 +119,22 @@ EZ.Entity.prototype = {
             en.getAllChildren(r);
         }
         return r;
+    },
+
+    getLeft: function(){
+        return this.getGlobalVector([1,0,0]);
+    },
+
+    getUp: function(){
+        return this.getGlobalVector([0,1,0]);
+    },
+
+    getFront: function(){
+        return this.getGlobalVector([0,0,1]);
+    },
+
+    getGlobalVector: function(v, out){
+        return vec3.transformMat4(  out || vec3.create(), v, this.global_transform );
     }
 
 };

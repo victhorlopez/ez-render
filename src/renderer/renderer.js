@@ -42,7 +42,7 @@ EZ.Renderer.prototype = {
     addTextureFromURL: function (name, url) {
         if(this.context != window.gl)
             this.context.makeCurrent();
-        gl.textures[name] = GL.Texture.fromURL( url, {minFilter: gl.NEAREST},this.context);
+        gl.textures[name] = GL.Texture.fromURL( url, {minFilter: gl.NEAREST});
     },
     addCubeMapFromURL: function (name, url) {
         if(this.context != window.gl)
@@ -59,8 +59,7 @@ EZ.Renderer.prototype = {
         this.addMesh("circle", GL.Mesh.circle({xz: true}));
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
-        this.addMesh("plane", GL.Mesh.box({size:50}));
-        this.addMesh("plane", GL.Mesh.box({size:50}));
+        this.addMesh("plane", GL.Mesh.plane({size:1}));
         this.addMesh("monkey", GL.Mesh.fromURL("assets/meshes/suzanne.obj"));
         // useful when you don't find a texture
         gl.textures = {};
@@ -69,8 +68,9 @@ EZ.Renderer.prototype = {
 
     },
 
-    createCanvas: function (width, height) {
+    createCanvas: function (width, height, id) {
         this.context = GL.create({width: width, height: height});
+        this.context.canvas.id = id;
         this.context.canvas.width = width;
         this.context.canvas.height = height;
         this.cam_controller = new EZ.CameraController(this);
