@@ -40,14 +40,10 @@ EZ.Renderer.prototype = {
     },
 
     addTextureFromURL: function (name, url, callback) {
-        if(this.context != window.gl)
-            this.context.makeCurrent();
-        gl.textures[name] = GL.Texture.fromURL( url, {minFilter: gl.NEAREST}, callback);
+        this.context.textures[name] = GL.Texture.fromURL( url, {minFilter: gl.NEAREST}, callback, this.context);
     },
     addCubeMapFromURL: function (name, url, callback) {
-        if(this.context != window.gl)
-            this.context.makeCurrent();
-        gl.textures[name] = GL.Texture.cubemapFromURL( url, {minFilter: gl.NEAREST}, callback);
+        this.context.textures[name] = GL.Texture.cubemapFromURL( url, {minFilter: gl.NEAREST}, callback, this.context);
     },
 
 
