@@ -21,13 +21,14 @@ EZ.Renderer = function (options) {
         u_view: {},
         u_viewprojection: {},
         u_model: {},
-        u_mvp: this.mvp_matrix
+        u_mvp: this.mvp_matrix,
     };
 
     // time vars
     this.now = getTime();
     this.then = this.now;
     this.dt = 0;
+    this.total_time = 0;
 };
 
 EZ.Renderer.prototype = {
@@ -46,7 +47,6 @@ EZ.Renderer.prototype = {
         this.context.textures[name] = GL.Texture.cubemapFromURL( url, {minFilter: gl.NEAREST}, callback, this.context);
     },
 
-
     loadAssets: function () {
         var options = {lat: 128, size: 0.5};
         options["long"] = 128;
@@ -56,7 +56,7 @@ EZ.Renderer.prototype = {
         this.addMesh("grid", GL.Mesh.grid({size: 1, lines: 50}));
         this.addMesh("box", GL.Mesh.box({size: 1}));
         this.addMesh("plane", GL.Mesh.plane({size:1}));
-        this.addMesh("monkey", GL.Mesh.fromURL("assets/meshes/suzanne.obj"));
+        this.addMesh("lee", GL.Mesh.fromURL("assets/meshes/lee.obj"));
         // useful when you don't find a texture
         gl.textures = {};
         gl.textures["notfound"] = new GL.Texture(1,1,{ filter: gl.NEAREST, pixel_data: new Uint8Array([0,0,0,255]) });
@@ -85,7 +85,8 @@ EZ.Renderer.prototype = {
             u_view: cam.view,
             u_viewprojection: cam.view_projection,
             u_model: entity.global_transform,
-            u_mvp: this.mvp_matrix
+            u_mvp: this.mvp_matrix,
+            u_time: this.total_time
         };
     },
     clearContext: function(){
@@ -94,7 +95,8 @@ EZ.Renderer.prototype = {
     },
     update: function() {
         this.now = getTime();
-        var dt = (this.now - this.then )* 0.001;;
+        var dt = (this.now - this.then )* 0.001;
+        this.total_time += dt;
         if( this.current_scene )
             this.current_scene.update(dt);
         this.cam_controller.update(dt);
