@@ -31,6 +31,8 @@ EZ.Entity = function() {
     this.parent = null;
     this.children = [];
 
+    this.visible = true;
+
     //
     this.follow = null;
 };
