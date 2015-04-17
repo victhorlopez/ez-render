@@ -18,7 +18,7 @@ EZ.EMesh = function (fov, aspect, near, far) {
     this.mesh_obj = null;
     this.textures = {};
     this.uniforms = { u_color: this.color, u_color_texture: 0 };
-    this.flags = {}; // rendering flags: flip_normals , depth_test, depth_write, blend, two_sided
+    this.flags = {flip_normals: false, depth_test:true, depth_write:true, blending:false, blending_mode:"additive", two_sided:false}; // rendering flags: flip_normals , depth_test, depth_write, blend, two_sided
 
     this.type = "mesh";
 };
@@ -82,9 +82,9 @@ EZ.EMesh.prototype.render = function (renderer) {
     gl[ this.flags.two_sided === true ? "disable" : "enable"](gl.CULL_FACE);
 
     //blend
-    if (this.flags.blend) {
+    if (this.flags.blending) {
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, this.blendMode == "additive" ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFunc(gl.SRC_ALPHA, this.flags.blending_mode == "additive" ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
     }
 
     shader.uniforms(this.uniforms);
@@ -93,7 +93,7 @@ EZ.EMesh.prototype.render = function (renderer) {
 
     if (this.flags.flip_normals) gl.frontFace(gl.CCW);
     if (this.flags.depth_test === false) gl.enable(gl.DEPTH_TEST);
-    if (this.flags.blend) gl.disable(gl.BLEND);
+    if (this.flags.blending) gl.disable(gl.BLEND);
     if (this.flags.two_sided) gl.disable(gl.CULL_FACE);
     if (this.flags.depth_write === false)
         gl.depthMask(true);

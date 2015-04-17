@@ -71,6 +71,50 @@ EZ.Renderer.prototype = {
         this.context.canvas.id = id;
         this.context.canvas.width = width;
         this.context.canvas.height = height;
+
+        var that = this;
+        this.context.ondrop = function (e) {
+            e.preventDefault();
+
+
+            var file = e.dataTransfer.files[0];
+            var filename = file.name;
+            var ext;
+            var point = filename.lastIndexOf(".");
+            if (point == -1)
+                return ext = "";
+            else
+                ext = filename.substr(point + 1).toLowerCase();
+
+
+
+            //prepare reader
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                //console.log(event.target);
+                var data = event.target.result;
+                node.onDropFile(data, filename, file, null, gl);
+                if(that.onDropFile)
+                    that.onDropFile(data, filename, file);
+                LiteGraph.dispatchEvent("contentChange", null, null);
+
+
+            };
+
+            //read data
+            var type = file.type.split("/")[0];
+            if (type == "text" || ext == "json")
+                reader.readAsText(file);
+            else if (type == "image")
+                reader.readAsDataURL(file);
+            else
+                reader.readAsArrayBuffer(file);
+
+
+            return false;
+        };
+
+
         this.cam_controller = new EZ.CameraController(this);
 
         this.loadAssets();
