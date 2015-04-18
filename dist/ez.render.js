@@ -262,8 +262,19 @@ EZ.EMesh.prototype.render = function (renderer) {
     //blend
     if (this.flags.blending) {
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, this.flags.blending_mode == "additive" ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+        if( this.flags.blending_mode == "additive")
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        else if (this.flags.blending_mode == "substractive")
+            gl.blendFunc( gl.ZERO, gl.ONE_MINUS_SRC_COLOR );
+        else if(this.flags.blending_mode == "multiplicative")
+            gl.blendFunc( gl.ZERO, gl.SRC_COLOR );
+        else if( this.flags.blending_mode == "alpha_blended"){
+            gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+        }else if( this.flags.blending_mode == "screen"){
+            gl.blendFunc( gl.ONE, gl.ONE_MINUS_SRC_COLOR );
+        }
     }
+    [GL.SRC_ALPHA, GL.ONE],
 
     shader.uniforms(this.uniforms);
     shader.uniforms(renderer.uniforms);
